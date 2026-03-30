@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshRoute – Order Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b3c;
+    --green-mid: #2d8a52;
+    --green-light: #e8f5ee;
+    --green-pale: #f4fbf7;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --ink: #1a1a1a;
+    --ink-mid: #4a4a4a;
+    --ink-soft: #7a7a7a;
+    --line: #e2e8e4;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --page-bg: #f2f7f4;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 16px rgba(26,107,60,0.08);
+    --shadow-hover: 0 6px 28px rgba(26,107,60,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--page-bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--green);
+    color: white;
+    padding: 20px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    position: relative; z-index: 1;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .header-date {
+    font-size: 12px;
+    opacity: 0.7;
+    position: relative; z-index: 1;
+  }
+  .header-tagline {
+    font-size: 13px;
+    opacity: 0.8;
+    position: relative; z-index: 1;
+    margin-top: 2px;
+  }
+
+  /* ── Outlet Info Card ── */
+  .section { padding: 0 16px; margin-top: 20px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .outlet-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+  }
+  .outlet-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .outlet-row:last-child { margin-bottom: 0; }
+  .field-group { display: flex; flex-direction: column; gap: 5px; }
+  .field-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+  input, select {
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(45,138,82,0.12);
+  }
+  input::placeholder { color: #b5c4bc; }
+
+  /* Date picker custom styling */
+  input[type="date"] { cursor: pointer; }
+
+  /* ── Order Items ── */
+  .order-items { display: flex; flex-direction: column; gap: 10px; }
+
+  .order-item {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--line);
+    padding: 14px;
+    box-shadow: var(--shadow);
+    animation: slideIn 0.25s ease;
+    position: relative;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .item-number {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--green-mid);
+    background: var(--green-light);
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+  .item-remove {
+    width: 28px; height: 28px;
+    border: none;
+    background: var(--red-light);
+    color: var(--red);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+  .item-remove:hover { background: #fecaca; transform: scale(1.05); }
+  .item-remove:active { transform: scale(0.95); }
+
+  .item-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .item-fields .full { grid-column: 1 / -1; }
+
+  /* Vegetable select with emoji */
+  .veg-option { font-size: 14px; }
+
+  /* Kg input with unit */
+  .kg-wrapper { position: relative; }
+  .kg-wrapper input { padding-right: 38px; }
+  .kg-unit {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    pointer-events: none;
+  }
+
+  /* ── Add Item Button ── */
+  .add-item-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px;
+    border: 2px dashed var(--green-mid);
+    border-radius: var(--radius);
+    background: var(--green-pale);
+    color: var(--green-mid);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .add-item-btn:hover {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .add-item-btn svg { width: 16px; height: 16px; }
+
+  /* ── Summary Preview ── */
+  .summary-card {
+    background: var(--green);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    color: white;
+  }
+  .summary-title {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.75;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    font-size: 13px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-veg { font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .summary-kg { font-weight: 700; font-size: 15px; }
+  .summary-empty {
+    text-align: center;
+    opacity: 0.5;
+    font-size: 13px;
+    padding: 10px 0;
+  }
+
+  /* ── Submit Button ── */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 20px rgba(26,107,60,0.28);
+  }
+  .submit-btn:hover {
+    background: var(--green-mid);
+    box-shadow: 0 6px 24px rgba(26,107,60,0.36);
+    transform: translateY(-1px);
+  }
+  .submit-btn:active { transform: translateY(0); }
+
+  /* ── Orders List (Management) ── */
+  .tabs {
+    display: flex;
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    margin: 0 16px 20px;
+    margin-top: -1px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.18s;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active {
+    background: var(--green);
+    color: white;
+    box-shadow: 0 2px 8px rgba(26,107,60,0.22);
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Orders list view */
+  .orders-list { display: flex; flex-direction: column; gap: 10px; }
+  .order-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    animation: slideIn 0.25s ease;
+  }
+  .order-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .order-outlet-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .order-date {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .order-card-actions { display: flex; gap: 6px; }
+  .btn-icon {
+    width: 30px; height: 30px;
+    border: none; border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .btn-edit { background: var(--amber-light); color: var(--amber); }
+  .btn-edit:hover { background: #fde68a; }
+  .btn-del { background: var(--red-light); color: var(--red); }
+  .btn-del:hover { background: #fecaca; }
+
+  .order-items-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .item-pill {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    background: var(--green-light);
+    color: var(--green);
+    border-radius: 20px;
+  }
+  .order-phone {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .no-orders {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-soft);
+  }
+  .no-orders-icon { font-size: 36px; margin-bottom: 10px; }
+  .no-orders p { font-size: 14px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    z-index: 1000;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  /* Edit modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px 36px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  /* ── Confirm Dialog ── */
+  .confirm-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 320px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: popIn 0.22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity:0; transform: scale(0.9); }
+    to   { opacity:1; transform: scale(1); }
+  }
+  .confirm-title { font-weight: 600; font-size: 16px; margin-bottom: 8px; }
+  .confirm-msg { font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; line-height: 1.5; }
+  .confirm-actions { display: flex; gap: 10px; }
+  .btn-cancel-confirm {
+    flex: 1; padding: 11px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    background: white; color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-cancel-confirm:hover { background: var(--page-bg); }
+  .btn-confirm-del {
+    flex: 1; padding: 11px;
+    border: none; border-radius: 10px;
+    background: var(--red); color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-confirm-del:hover { background: #b91c1c; }
+
+  /* Responsive tweaks */
+  @media (min-width: 480px) {
+    .section { padding: 0 20px; }
+    .tabs { margin: 0 20px 20px; }
+    header { padding: 24px 24px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🥦</div>
+      FreshRoute
+    </div>
+    <div class="header-date" id="header-date"></div>
+  </div>
+  <div class="header-tagline">Vegetable Order Portal</div>
+</header>
+
+<!-- Tabs -->
+<div style="padding: 16px 0 0;">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('place')">Place Order</button>
+    <button class="tab" onclick="switchTab('manage')">My Orders</button>
+  </div>
+</div>
+
+<!-- ══ PLACE ORDER VIEW ══ -->
+<div class="view active" id="view-place">
+
+  <!-- Outlet Info -->
+  <div class="section">
+    <div class="section-label">Outlet Information</div>
+    <div class="outlet-card">
+      <div class="outlet-row">
+        <div class="field-group">
+          <label for="outlet-name">Outlet Name</label>
+          <input type="text" id="outlet-name" placeholder="e.g. Mumbai Central" autocomplete="organization">
+        </div>
+        <div class="field-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="+91 98765..." autocomplete="tel">
+        </div>
+      </div>
+      <div class="outlet-row">
+        <div class="field-group full">
+          <label for="order-date">Delivery Date</label>
+          <input type="date" id="order-date">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Items -->
+  <div class="section" style="margin-top: 18px;">
+    <div class="section-label">Vegetables</div>
+    <div class="order-items" id="order-items"></div>
+    <div style="margin-top: 10px;">
+      <button class="add-item-btn" onclick="addItem()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Vegetable
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="section" style="margin-top: 18px;">
+    <div class="section-label">Order Summary</div>
+    <div class="summary-card" id="summary-card">
+      <div class="summary-title">Total by Vegetable</div>
+      <div id="summary-rows">
+        <div class="summary-empty">Add vegetables to see summary</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="section" style="margin-top: 18px;">
+    <button class="submit-btn" onclick="submitOrder()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+      Submit Order
+    </button>
+  </div>
+
+</div>
+
+<!-- ══ MANAGE ORDERS VIEW ══ -->
+<div class="view" id="view-manage">
+  <div class="section">
+    <div class="orders-list" id="orders-list"></div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal" onclick="closeEditModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit Order</div>
+    <div id="edit-modal-content"></div>
+    <div style="margin-top:16px;">
+      <button class="submit-btn" onclick="saveEdit()" style="font-size:15px; padding:14px;">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="confirm-overlay" id="confirm-delete">
+  <div class="confirm-box">
+    <div class="confirm-title">Delete this order?</div>
+    <div class="confirm-msg">This order will be permanently removed. This action cannot be undone.</div>
+    <div class="confirm-actions">
+      <button class="btn-cancel-confirm" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const VEGETABLES = [
+  { name: 'Tomato', emoji: '🍅' },
+  { name: 'Onion', emoji: '🧅' },
+  { name: 'Potato', emoji: '🥔' },
+  { name: 'Spinach', emoji: '🌿' },
+  { name: 'Carrot', emoji: '🥕' },
+  { name: 'Cauliflower', emoji: '🥦' },
+  { name: 'Capsicum', emoji: '🫑' },
+  { name: 'Cucumber', emoji: '🥒' },
+  { name: 'Brinjal', emoji: '🍆' },
+  { name: 'Cabbage', emoji: '🥬' },
+  { name: 'Ginger', emoji: '🫚' },
+  { name: 'Garlic', emoji: '🧄' },
+  { name: 'Mango', emoji: '🥭' },
+  { name: 'Lemon', emoji: '🍋' },
+  { name: 'Coriander', emoji: '🌿' },
+  { name: 'Green Chilli', emoji: '🌶' },
+  { name: 'Lady Finger', emoji: '🌱' },
+  { name: 'Bitter Gourd', emoji: '🥬' },
+  { name: 'Beans', emoji: '🫘' },
+  { name: 'Peas', emoji: '🟢' },
+  { name: 'Other', emoji: '🥗' },
+];
+
+let orders = JSON.parse(localStorage.getItem('freshroute_orders') || '[]');
+let itemCount = 0;
+let deleteTargetId = null;
+let editTargetId = null;
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  document.getElementById('header-date').textContent = now.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+
+  // Set default delivery date to tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('order-date').value = tomorrow.toISOString().split('T')[0];
+
+  addItem();
+});
+
+function addItem() {
+  itemCount++;
+  const id = itemCount;
+  const vegOptions = VEGETABLES.map(v =>
+    `<option value="${v.name}" data-emoji="${v.emoji}">${v.emoji} ${v.name}</option>`
+  ).join('');
+
+  const html = `
+    <div class="order-item" id="item-${id}">
+      <div class="item-header">
+        <span class="item-number">Item ${id}</span>
+        <button class="item-remove" onclick="removeItem(${id})" title="Remove">✕</button>
+      </div>
+      <div class="item-fields">
+        <div class="field-group full">
+          <label>Vegetable</label>
+          <select onchange="updateSummary()" id="veg-${id}">
+            <option value="">Select vegetable…</option>
+            ${vegOptions}
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Quantity</label>
+          <div class="kg-wrapper">
+            <input type="number" id="kg-${id}" placeholder="0" min="0.5" step="0.5" oninput="updateSummary()">
+            <span class="kg-unit">kg</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Custom name (optional)</label>
+          <input type="text" id="custom-${id}" placeholder="e.g. cherry tomato">
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('order-items').insertAdjacentHTML('beforeend', html);
+  updateSummary();
+}
+
+function removeItem(id) {
+  const el = document.getElementById('item-' + id);
+  el.style.opacity = '0';
+  el.style.transform = 'scale(0.96)';
+  el.style.transition = 'all 0.2s';
+  setTimeout(() => { el.remove(); updateSummary(); }, 200);
+}
+
+function updateSummary() {
+  const rows = document.getElementById('summary-rows');
+  const items = getFormItems();
+  if (!items.length) {
+    rows.innerHTML = '<div class="summary-empty">Add vegetables to see summary</div>';
+    return;
+  }
+  // Group by veg
+  const grouped = {};
+  items.forEach(i => {
+    const key = i.customName || i.veg;
+    if (!key || !i.kg) return;
+    grouped[key] = (grouped[key] || 0) + parseFloat(i.kg);
+  });
+  if (!Object.keys(grouped).length) {
+    rows.innerHTML = '<div class="summary-empty">Select vegetables and quantities</div>';
+    return;
+  }
+  rows.innerHTML = Object.entries(grouped).map(([veg, kg]) => {
+    const vegInfo = VEGETABLES.find(v => v.name === veg) || { emoji: '🥗' };
+    return `<div class="summary-row">
+      <span class="summary-veg">${vegInfo.emoji} ${veg}</span>
+      <span class="summary-kg">${kg} kg</span>
+    </div>`;
+  }).join('');
+}
+
+function getFormItems() {
+  const items = [];
+  document.querySelectorAll('.order-item').forEach(el => {
+    const id = el.id.replace('item-', '');
+    const veg = document.getElementById('veg-' + id)?.value;
+    const kg = document.getElementById('kg-' + id)?.value;
+    const customName = document.getElementById('custom-' + id)?.value.trim();
+    if (veg || kg) items.push({ veg, kg, customName });
+  });
+  return items;
+}
+
+function submitOrder() {
+  const outletName = document.getElementById('outlet-name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const date = document.getElementById('order-date').value;
+  const items = getFormItems().filter(i => i.veg && i.kg);
+
+  if (!outletName) { showToast('Please enter outlet name', 'error'); return; }
+  if (!phone) { showToast('Please enter phone number', 'error'); return; }
+  if (!date) { showToast('Please select delivery date', 'error'); return; }
+  if (!items.length) { showToast('Add at least one vegetable', 'error'); return; }
+
+  const order = {
+    id: Date.now().toString(),
+    outletName, phone, date,
+    items,
+    submittedAt: new Date().toISOString()
+  };
+
+  orders.push(order);
+  saveOrders();
+
+  // Reset form
+  document.getElementById('outlet-name').value = '';
+  document.getElementById('phone').value = '';
+  document.getElementById('order-items').innerHTML = '';
+  itemCount = 0;
+  updateSummary();
+  addItem();
+
+  // Set tomorrow's date again
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('order-date').value = tomorrow.toISOString().split('T')[0];
+
+  showToast('✓ Order submitted!', 'success');
+
+  // In a real app: POST to backend API here
+  // fetch('/api/orders', { method: 'POST', body: JSON.stringify(order) })
+}
+
+// ── Manage Orders ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'place') || (i === 1 && tab === 'manage'));
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'manage') renderOrders();
+}
+
+function renderOrders() {
+  const list = document.getElementById('orders-list');
+  if (!orders.length) {
+    list.innerHTML = `<div class="no-orders">
+      <div class="no-orders-icon">📋</div>
+      <p>No orders yet.<br>Place your first order!</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = orders.slice().reverse().map(o => {
+    const dateStr = new Date(o.date).toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+    const pills = o.items.map(i => {
+      const label = i.customName || i.veg;
+      const vegInfo = VEGETABLES.find(v => v.name === i.veg) || { emoji: '🥗' };
+      return `<span class="item-pill">${vegInfo.emoji} ${label} · ${i.kg}kg</span>`;
+    }).join('');
+    return `<div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <div class="order-outlet-name">${o.outletName}</div>
+          <div class="order-date">Delivery: ${dateStr}</div>
+        </div>
+        <div class="order-card-actions">
+          <button class="btn-icon btn-edit" onclick="openEdit('${o.id}')" title="Edit">✏️</button>
+          <button class="btn-icon btn-del" onclick="openDelete('${o.id}')" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="order-items-pills">${pills}</div>
+      <div class="order-phone">📞 ${o.phone}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Edit ──
+function openEdit(id) {
+  editTargetId = id;
+  const order = orders.find(o => o.id === id);
+  if (!order) return;
+
+  const vegOptions = VEGETABLES.map(v =>
+    `<option value="${v.name}">${v.emoji} ${v.name}</option>`
+  ).join('');
+
+  const dateStr = order.date;
+  const itemsHtml = order.items.map((item, idx) => `
+    <div style="background:var(--page-bg);border-radius:12px;padding:12px;margin-bottom:10px;">
+      <label style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.04em;">Item ${idx+1}</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+        <div class="field-group full">
+          <select class="edit-veg" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:14px;-webkit-appearance:none;outline:none;">
+            ${VEGETABLES.map(v => `<option value="${v.name}" ${v.name===item.veg?'selected':''}>${v.emoji} ${v.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field-group" style="position:relative;">
+          <input type="number" class="edit-kg" value="${item.kg}" min="0.5" step="0.5" style="width:100%;padding:9px 38px 9px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
+          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--ink-soft);">kg</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('edit-modal-content').innerHTML = `
+    <div class="outlet-card" style="margin-bottom:12px;">
+      <div class="outlet-row">
+        <div class="field-group">
+          <label>Outlet Name</label>
+          <input type="text" id="edit-outlet" value="${order.outletName}">
+        </div>
+        <div class="field-group">
+          <label>Phone</label>
+          <input type="tel" id="edit-phone" value="${order.phone}">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Delivery Date</label>
+        <input type="date" id="edit-date" value="${dateStr}" style="width:100%">
+      </div>
+    </div>
+    <div class="section-label" style="margin-bottom:8px;">Items</div>
+    <div id="edit-items">${itemsHtml}</div>`;
+
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal(e) {
+  if (e.target === document.getElementById('edit-modal')) {
+    document.getElementById('edit-modal').classList.remove('open');
+  }
+}
+
+function saveEdit() {
+  const order = orders.find(o => o.id === editTargetId);
+  if (!order) return;
+
+  order.outletName = document.getElementById('edit-outlet').value.trim();
+  order.phone = document.getElementById('edit-phone').value.trim();
+  order.date = document.getElementById('edit-date').value;
+
+  const vegEls = document.querySelectorAll('.edit-veg');
+  const kgEls = document.querySelectorAll('.edit-kg');
+  order.items = Array.from(vegEls).map((v, i) => ({
+    veg: v.value,
+    kg: kgEls[i].value,
+    customName: ''
+  }));
+
+  saveOrders();
+  document.getElementById('edit-modal').classList.remove('open');
+  renderOrders();
+  showToast('✓ Order updated', 'success');
+}
+
+// ── Delete ──
+function openDelete(id) {
+  deleteTargetId = id;
+  document.getElementById('confirm-delete').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirm-delete').classList.remove('open');
+  deleteTargetId = null;
+}
+function confirmDelete() {
+  orders = orders.filter(o => o.id !== deleteTargetId);
+  saveOrders();
+  closeConfirm();
+  renderOrders();
+  showToast('Order deleted', 'error');
+}
+
+// ── Persistence ──
+function saveOrders() {
+  localStorage.setItem('freshroute_orders', JSON.stringify(orders));
+}
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
